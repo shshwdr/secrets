@@ -1,16 +1,20 @@
 extends Node
 
+var tile_length = 160
+var half_tile_size = Vector2(tile_length/2,tile_length/2)
+var rng:RandomNumberGenerator = RandomNumberGenerator.new()
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+	rng.randomize()
+	
+func in_bound(index:Vector2, width,height):
+	return index.x>=0 and index.x<width and index.y>=0 and index.y<height	
+	
+func index_to_position(index:Vector2):
+	var res = index*tile_length +half_tile_size
+	return res
+	
+func randomi_2d(width,height):
+	var w = rng.randi() % width
+	var h = rng.randi() % height
+	return Vector2(w,h)
