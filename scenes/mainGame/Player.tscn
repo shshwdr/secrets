@@ -11,3 +11,7 @@ script = ExtResource( 2 )
 [node name="human" type="Sprite" parent="."]
 position = Vector2( 0, -3 )
 texture = ExtResource( 1 )
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true

@@ -6,7 +6,6 @@ var height = 5
 var index_to_tile_map ={}
 var tile_to_index_map ={}
 var player_instance
-var player_index_position
 
 var tile_scene = preload("res://scenes/mainGame/tile.tscn")
 var player_scene = preload("res://scenes/mainGame/Player.tscn")
@@ -16,13 +15,13 @@ var player_scene = preload("res://scenes/mainGame/Player.tscn")
 
 func generate_cover_info():
 	#where player stand is always none
-	var player_tile:Tile = index_to_tile_map[player_index_position]
+	var player_tile:Tile = index_to_tile_map[player_instance.index_positioin()]
 	player_tile.cover_state = Constants.CoverState.None
 	
 	#start from player, search around, if next to player, set to accessible
 	
 	for d in Constants.DIR4:
-		var new_index = player_index_position+d
+		var new_index = player_instance.index_positioin()+d
 		if Utils.in_bound(new_index,width,height):
 			var tile:Tile = index_to_tile_map[new_index]
 			if tile.cover_state == Constants.CoverState.NotAccessible:
@@ -36,7 +35,7 @@ func update_tiles():
 			tile.update()
 	
 func init_player():
-	player_index_position = Utils.randomi_2d(width,height)
+	var player_index_position = Utils.randomi_2d(width,height)
 	player_instance = player_scene.instance()
 	add_child(player_instance)
 	player_instance.position = Utils.index_to_position(player_index_position)
@@ -53,13 +52,14 @@ func init_tiles():
 			tile_to_index_map[tile_instance] = index
 	
 func get_player_path_to(index):
-	print(index,player_index_position)
+	print(index,player_instance.index_positioin())
 	#add player index in queue, keep looking around
-	var queue = [[player_index_position,[]]]
-	if index == player_index_position:
+	var queue = [[player_instance.index_positioin(),[]]]
+	if index == player_instance.index_positioin():
 		return []
-	var vis = {player_index_position:true}
+	var vis = {player_instance.index_positioin():true}
 	while queue.size()>0:
+		#print("queue ",queue)
 		var top = queue.pop_front()
 		var top_position = top[0]
 		for d in Constants.DIR4:
@@ -68,11 +68,10 @@ func get_player_path_to(index):
 				continue
 			vis[new_index]= true
 			#print("new index ",new_index)
-			var new_path = top[1]
-			#print(new_path)
+			var new_path = top[1].duplicate()
+			#print("new path ",new_path)
 			new_path.push_back(new_index)
 			if new_index == index:
-				print(new_path)
 				return new_path
 				
 			if Utils.in_bound(new_index,width,height):
@@ -89,7 +88,8 @@ func on_touched_tile(index):
 	var tile = index_to_tile_map[index]
 	var player_path_to_tile = get_player_path_to(index)
 	if player_path_to_tile:
-		print("path ",player_path_to_tile)
+		#print("path ",player_path_to_tile)
+		yield(player_instance.move_path(player_path_to_tile),"completed")
 		#move player
 		tile.cover_state = Constants.CoverState.None
 		tile.update()

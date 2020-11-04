@@ -24,6 +24,9 @@ func position_to_index(position:Vector2):
 	res = Vector2(round(res.x),round(res.y))
 	return res
 	
+func position_move(character,index_position):
+	character.position = index_to_position(index_position)
+	
 func randomi_2d(width,height):
 	var w = rng.randi() % width
 	var h = rng.randi() % height
