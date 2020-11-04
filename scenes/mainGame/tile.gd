@@ -31,6 +31,8 @@ func add_cover():
 func _ready():
 	update()
 
+func can_pass():
+	return cover_state == Constants.CoverState.None
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
