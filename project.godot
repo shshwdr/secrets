@@ -28,6 +28,7 @@ config/icon="res://icon.png"
 
 Utils="*res://scenes/AutoLoad/Utils.gd"
 Constants="*res://scenes/AutoLoad/Constants.gd"
+Events="*res://scenes/AutoLoad/Events.gd"
 
 [display]
 
@@ -57,6 +58,10 @@ texture={
 "stream": false,
 "svg/scale": 1.0
 }
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
 
 [rendering]
 

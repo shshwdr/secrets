@@ -3,7 +3,8 @@ extends Node2D
 
 var width = 6
 var height = 5
-var tile_map ={}
+var index_to_tile_map ={}
+var tile_to_index_map ={}
 var player_instance
 var player_index_position
 
@@ -15,7 +16,7 @@ var player_scene = preload("res://scenes/mainGame/Player.tscn")
 
 func generate_cover_info():
 	#where player stand is always none
-	var player_tile:Tile = tile_map[player_index_position]
+	var player_tile:Tile = index_to_tile_map[player_index_position]
 	player_tile.cover_state = Constants.CoverState.None
 	
 	#start from player, search around, if next to player, set to accessible
@@ -24,7 +25,7 @@ func generate_cover_info():
 	for d in DIR4:
 		var new_index = player_index_position+d
 		if Utils.in_bound(new_index,width,height):
-			var tile:Tile = tile_map[new_index]
+			var tile:Tile = index_to_tile_map[new_index]
 			if tile.cover_state == Constants.CoverState.NotAccessible:
 				tile.cover_state = Constants.CoverState.Accessible
 
@@ -32,7 +33,7 @@ func update_tiles():
 	for i in width:
 		for j in height:
 			var index = Vector2(i,j)
-			var tile:Tile = tile_map[index]
+			var tile:Tile = index_to_tile_map[index]
 			tile.update()
 	
 func init_player():
@@ -49,14 +50,33 @@ func init_tiles():
 			tile_instance.init({},Constants.CoverState.NotAccessible)
 			add_child(tile_instance)
 			tile_instance.position = Utils.index_to_position(index)
-			tile_map[index] = tile_instance
+			index_to_tile_map[index] = tile_instance
+			tile_to_index_map[tile_instance] = index
 	
+func on_touched_tile(index):
+	if not index_to_tile_map.has(index):
+		return
+	var tile = index_to_tile_map[index]
+	#if not have cover, move player there, consume item on it if exist
+	#if accessible, hide cover
+	tile.cover_state = Constants.CoverState.None
+	tile.update()
+	
+	pass
+
+
+func _input(event):
+	if event is InputEventScreenTouch and event.pressed:
+		var touch = event.position
+		var index = Utils.position_to_index(touch)
+		on_touched_tile(index)
 
 func _ready():
 	init_player()
 	init_tiles()
 	generate_cover_info()
 	update_tiles()
+	Events.connect("touched_tile",self,"on_touched_tile")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
